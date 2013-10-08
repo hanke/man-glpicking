@@ -97,10 +97,10 @@ morekeywords={*,__global__, __device__, __shared__}            % if you want to 
 
 \newcommand{\todo}[1]{\marginpar{\color{red}#1}}
 
-\def\mytitle{Multi-threaded OpenGL with Picking Capabilities the QT-Way}
+\def\mytitle{Multi-threaded OpenGL with Picking Capabilities the Qt-Way}
 
 
-\markboth{S. C. Kramer and M. Hanke.}{Multi-threaded OpenGL with QT}
+\markboth{S. C. Kramer and M. Hanke.}{Multi-threaded OpenGL with Qt}
                 
 
 \usepackage{ifthen}
@@ -129,7 +129,7 @@ morekeywords={*,__global__, __device__, __shared__}            % if you want to 
 %
 
 \begin{abstract} % revtex, acmsmall
-We discuss how to realize multi-threaded OpenGL with picking capabilities based on QT's OpenGL and Thread modules by combining two existing QT sample programs. 
+We discuss how to realize multi-threaded OpenGL with picking capabilities based on Qt's OpenGL and Thread modules by combining two existing Qt sample programs. 
 %
 The main problem is a thread-safe access to the OpenGL rendering context from different threads.
 %\input{content/abstract_cublas++}
@@ -181,15 +181,15 @@ There are quite a few examples for OpenGL-based rendering with picking capabilit
 %
 For instance lesson 32 of the NeHe tutorials \cite{nehe32}. 
 %
-How to move labor-intensive rendering into a separate thread such that the main window of an application does not freeze is discussed in ``Glimpsing the Third Dimension'' \cite{glimpse3d} and a worked out, non-OpenGL example is the Mandelbrot program from the collection of QT demo programs.
+How to move labor-intensive rendering into a separate thread such that the main window of an application does not freeze is discussed in ``Glimpsing the Third Dimension'' \cite{glimpse3d} and a worked out, non-OpenGL example is the Mandelbrot program from the collection of Qt demo programs.
 
-When it comes to GL-picking and QT, finding a template program is not so easy anymore.
+When it comes to GL-picking and Qt, finding a template program is not so easy anymore.
 %
 Nevertheless, there is at least one example~\cite{Blanchette2008}.
 %
 But multi-threaded OpenGL rendering with picking capabilities seems to be gap which has not been filled, yet.
 
-Given the plethora of QT and OpenGL examples it should be a piece of cake to realize this.
+Given the plethora of Qt and OpenGL examples it should be a piece of cake to realize this.
 %
 But, as always, easy things are hard to find and therefore we present our solution so that others do not have to bother about doing it themselves.
 
@@ -200,7 +200,7 @@ But, as always, easy things are hard to find and therefore we present our soluti
 
 Our solution for multi-threaded OpenGL rendering with picking capabilities is a combination of two existing programs.
 %
-The first one is taken from \cite[chapter 8]{Blanchette2008} which we modify such that it renders a cube and not a tetrahedron. This program provides the ``OpenGL with picking+QT'' part implemented with a\lstinline|QGLWidget|.
+The first one is taken from \cite[chapter 8]{Blanchette2008} which we modify such that it renders a cube and not a tetrahedron. This program provides the ``OpenGL with picking+Qt'' part implemented with a\lstinline|QGLWidget|.
 %
 The second part, i.e. the concurrent rendering, is taken from \cite{glimpse3d}.
 %
@@ -225,7 +225,7 @@ This is needed as we want to issue the OpenGL rendering commands from a thread o
 %
 The need for the\lstinline|XInitThreads()| function induces differences in the list of headers we have to include.
 %
-In particular, in case of Linux we need the main header for the {\sf XLib} library which is encapsulated by a preprocessor directive using a built-in QT macro.
+In particular, in case of Linux we need the main header for the {\sf XLib} library which is encapsulated by a preprocessor directive using a built-in Qt macro.
 %
 %\ifthenelse{\boolean{UseOrig}}
 %{
@@ -253,7 +253,7 @@ In particular, in case of Linux we need the main header for the {\sf XLib} libra
 \end{lstlisting}
 %}
 %
-The rest of\lstinline|main.cpp| is left as it is and provides the usual setup of a QT application. 
+The rest of\lstinline|main.cpp| is left as it is and provides the usual setup of a Qt application. 
 
 
 \subsection{exampleglwidget.h}
@@ -396,7 +396,7 @@ This has to be followed by a call to the\lstinline|render()| function of the wid
 %
 The main problem in multi-threaded OpenGL is a thread-safe usage of the OpenGL rendering context.
 %
-To do this, we have to guard the access by a mutex for which we use QT's\lstinline|QMutex| class. 
+To do this, we have to guard the access by a mutex for which we use Qt's\lstinline|QMutex| class. 
 %
 In the function\lstinline|lockGLContext()| the OpenGL widget takes ownership of the rendering context and locks the mutex. 
 %
@@ -807,9 +807,9 @@ At the end we have to release the rendering context again and return the name of
 \end{center}
 \end{figure}
 
-We have shown how to implement multi-threaded OpenGL with picking capabilities based on QT's OpenGL and Thread modules.
+We have shown how to implement multi-threaded OpenGL with picking capabilities based on Qt's OpenGL and Thread modules.
 %
-To this end, we combined two existing QT sample programs~\cite{glimpse3d,Blanchette2008}. 
+To this end, we combined two existing Qt sample programs~\cite{glimpse3d,Blanchette2008}. 
 %
 The thread-safe access to the OpenGL rendering context from different threads is realized by guarding it with a mutex which gets locked and unlocked each time a thread takes temporary ownership of the rendering context.
 %
@@ -833,7 +833,7 @@ This code has been licensed under the GNU Public License (GPL) and is available 
 
 
 \bibitem{glimpse3d}
-[2]~Kjern\r{a}sen, T., 2003. {\itshape Glimpsing the third dimension}. QT Quarterly {\bf 6}. Trolltech.
+[2]~Kjern\r{a}sen, T., 2003. {\itshape Glimpsing the third dimension}. Qt Quarterly {\bf 6}. Trolltech.
 
 \bibitem%[\protect\citeauthoryear{Blanchette and Summerfield}{2008}]
 {Blanchette2008} 
