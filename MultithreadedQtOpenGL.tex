@@ -133,9 +133,12 @@ morekeywords={*,__global__, __device__, __shared__}            % if you want to 
 %
 
 \begin{abstract} % revtex, acmsmall
-We discuss how to realize multi-threaded OpenGL with picking capabilities based on Qt's OpenGL and Thread modules by combining two existing Qt sample programs.
+We discuss how to realize multi-threaded
+OpenGL with picking capabilities based on Qt's OpenGL and Thread modules by
+combining two existing Qt sample programs.
 %
-The main problem is a thread-safe access to the OpenGL rendering context from different threads.
+The main problem is a thread-safe access to the OpenGL rendering context from
+different threads.
 %\input{content/abstract_cublas++}
 \end{abstract}
 
@@ -179,55 +182,79 @@ The main problem is a thread-safe access to the OpenGL rendering context from di
 \section{Introduction}
 \label{sec:Introduction}
 
-There are quite a few examples for OpenGL-based rendering with picking capabilities.
+There are quite a few examples for OpenGL-based rendering with picking
+capabilities.
 %
 For instance lesson 32 of the NeHe tutorials \cite{nehe32}.
 %
-How to move labor-intensive rendering into a separate thread such that the main window of an application does not freeze is discussed in ``Glimpsing the Third Dimension'' \cite{glimpse3d} and a worked out, non-OpenGL example is the Mandelbrot program from the collection of Qt demo programs.
+How to move labor-intensive rendering into a separate thread such that the main
+window of an application does not freeze is discussed in ``Glimpsing the Third
+Dimension'' \cite{glimpse3d} and a worked out, non-OpenGL example is the
+Mandelbrot program from the collection of Qt demo programs.
 
-When it comes to GL-picking and Qt, finding a template program is not so easy anymore.
+When it comes to GL-picking and Qt, finding a template program is not so easy
+anymore.
 %
 Nevertheless, there is at least one example~\cite{Blanchette2008}.
 %
-But multi-threaded OpenGL rendering with picking capabilities seems to be gap which has not been filled, yet.
+But multi-threaded OpenGL rendering with picking capabilities seems to be gap
+which has not been filled, yet.
 
-Given the plethora of Qt and OpenGL examples it should be a piece of cake to realize this.
+Given the plethora of Qt and OpenGL examples it should be a piece of cake to
+realize this.
 %
-But, as always, easy things are hard to find and therefore we present our solution so that others do not have to bother about doing it themselves.
+But, as always, easy things are hard to find and therefore we present our
+solution so that others do not have to bother about doing it themselves.
 
 
 
 
 \section{Discussion of the Implementation}
 
-Our solution for multi-threaded OpenGL rendering with picking capabilities is a combination of two existing programs.
+Our solution for multi-threaded OpenGL rendering with picking capabilities is a
+combination of two existing programs.
 %
-The first one is taken from \cite[chapter 8]{Blanchette2008} which we modify such that it renders a cube and not a tetrahedron. This program provides the ``OpenGL with picking+Qt'' part implemented with a\lstinline|QGLWidget|.
+The first one is taken from \cite[chapter 8]{Blanchette2008} which we modify
+such that it renders a cube and not a tetrahedron. This program provides the
+``OpenGL with picking+Qt'' part implemented with a\lstinline|QGLWidget|.
 %
 The second part, i.e. the concurrent rendering, is taken from \cite{glimpse3d}.
 %
-We implement the picking in such a way that it can be used from both threads and not only from the rendering thread.
+We implement the picking in such a way that it can be used from both threads
+and not only from the rendering thread.
 
 
-In the following we show the crucial parts of the source code, i.e. the modifications we have to apply to the program by Blanchette and Summerfield.
+In the following we show the crucial parts of the source code, i.e. the
+modifications we have to apply to the program by Blanchette and Summerfield.
 %
-The full source  code is available from {\sf mih.voxindeserto.de/threadedcube.html} and has been licensed under the GNU Public License (GPL).
+The full source  code is available from {\sf
+mih.voxindeserto.de/threadedcube.html} and has been licensed under the GNU
+Public License (GPL).
 
 
 
 \subsection{main.cpp}
 
-We present our changes in a top-down approach and start in the file containing the main function.
+We present our changes in a top-down approach and start in the file containing
+the main function.
 %
 Multi-threading inherently depends on the operating system (OS).
 %
-While there are no special headers to be included in case of {\sf Windows} or {\sf Max OS X}, {\sf Linux} requires the\lstinline|XInitThreads()| function to be called at the very begining, even before the\lstinline|main()| function, at the start-up of the program in order to make calls to the  {\sf XLib} library thread-safe.
+While there are no special headers to be included in case of {\sf Windows} or
+{\sf Max OS X}, {\sf Linux} requires the\lstinline|XInitThreads()| function to
+be called at the very begining, even before the\lstinline|main()| function, at
+the start-up of the program in order to make calls to the  {\sf XLib} library
+thread-safe.
 %
-This is needed as we want to issue the OpenGL rendering commands from a thread other than the main GUI thread.
+This is needed as we want to issue the OpenGL rendering commands from a thread
+other than the main GUI thread.
 %
-The need for the\lstinline|XInitThreads()| function induces differences in the list of headers we have to include.
+The need for the\lstinline|XInitThreads()| function induces differences in the
+list of headers we have to include.
 %
-In particular, in case of Linux we need the main header for the {\sf XLib} library which is encapsulated by a preprocessor directive using a built-in Qt macro.
+In particular, in case of Linux we need the main header for the {\sf XLib}
+library which is encapsulated by a preprocessor directive using a built-in Qt
+macro.
 %
 %\ifthenelse{\boolean{UseOrig}}
 %{
@@ -255,22 +282,30 @@ In particular, in case of Linux we need the main header for the {\sf XLib} libra
 \end{lstlisting}
 %}
 %
-The rest of\lstinline|main.cpp| is left as it is and provides the usual setup of a Qt application.
+The rest of\lstinline|main.cpp| is left as it is and provides the usual setup
+of a Qt application.
 
 
 \subsection{exampleglwidget.h}
 
-\todo{\small Should we include the header to give a detailed overview of the class? }
+\todo{\small Should we include the header to give a detailed overview of the
+class? }
 
-The class\lstinline|ExampleGLWidget| extends\lstinline|QGLWidget| and only displays the results of the rendering which is done concurrently in a different thread.
+The class\lstinline|ExampleGLWidget| extends\lstinline|QGLWidget| and only
+displays the results of the rendering which is done concurrently in a different
+thread.
 %
-Since it is a widget it has to be instantiated in the main thread which hosts the GUI.
+Since it is a widget it has to be instantiated in the main thread which hosts
+the GUI.
 
 \subsection{exampleglwidget.cpp}
 
-The constructor initializes the OpenGL rendering thread with a reference\lstinline|glt| to the object of type\lstinline|ExampleGLWidget|.
+The constructor initializes the OpenGL rendering thread with a
+reference\lstinline|glt| to the object of type\lstinline|ExampleGLWidget|.
 %
-Furthermore, we have to turn off the automatic swapping of the frame buffer since this has to happen in the rendering thread. Finally, the rendering thread as to be activated (line 50).
+Furthermore, we have to turn off the automatic swapping of the frame buffer
+since this has to happen in the rendering thread. Finally, the rendering thread
+as to be activated (line 50).
 %
 %%%\ifthenelse {\boolean{UseOrig}}
 %%%{
@@ -306,20 +341,27 @@ Furthermore, we have to turn off the automatic swapping of the frame buffer sinc
 %%%}
 The picking is to be triggered by a mouse double-click.
 %
-The handling of the corresponding mouse event has to be done by the\lstinline|ExampleGLWidget| class.
+The handling of the corresponding mouse event has to be done by
+the\lstinline|ExampleGLWidget| class.
 %
-To implement this we have to overwrite the\lstinline|mouseDoubleClickEvent| of the base class.
+To implement this we have to overwrite the\lstinline|mouseDoubleClickEvent| of
+the base class.
 
-In line 81 we ask the rendering thread via the reference\lstinline|glt| for the cube's face under the current mouse position.
+In line 81 we ask the rendering thread via the reference\lstinline|glt| for the
+cube's face under the current mouse position.
 %
-The function\lstinline|faceAtPosition()| is a method of the class\lstinline|ExampleRenderThread|, see below, which implements the GL-picking.
+The function\lstinline|faceAtPosition()| is a method of the
+class\lstinline|ExampleRenderThread|, see below, which implements the
+GL-picking.
 %
 Note that we call the method from the main thread.
 %
 %\marginpar{where are the security measures for faceatposition?}
-Therefore, all calls to\lstinline|faceAtPosition()| have to be guarded by mutexes to maintain thread-safety.
+Therefore, all calls to\lstinline|faceAtPosition()| have to be guarded by
+mutexes to maintain thread-safety.
 %
-This is hidden in the lock/-unlock mechanism for the OpenGL rendering context, see below.
+This is hidden in the lock/-unlock mechanism for the OpenGL rendering context,
+see below.
  %
 %%% \ifthenelse {\boolean{UseOrig}}
 %%% {
@@ -359,16 +401,26 @@ This is hidden in the lock/-unlock mechanism for the OpenGL rendering context, s
 \end{lstlisting}
 %%%}
 %
-% Diese Funktion demonstriert das Picking. Der Aufruf in Zeile 81 holt die ID-Nummer der angeklickten Würfel-Fläche. faceAtPosition() ist eine Methode der Rendering-Thread-Klasse, in der das GL-Picking implementiert ist (siehe unten). Zu beachten ist hier, dass dieser Methoden-Aufruf aus dem Haupt-GUI-Thread heraus erfolgt. Aus diesem Grund müssen alle Aufrufe in der faceAtPosition() besonders gesichert werden.
+% Diese Funktion demonstriert das Picking. Der Aufruf in Zeile 81 holt die
+% ID-Nummer der angeklickten Würfel-Fläche. faceAtPosition() ist eine Methode
+% der Rendering-Thread-Klasse, in der das GL-Picking implementiert ist (siehe
+% unten). Zu beachten ist hier, dass dieser Methoden-Aufruf aus dem
+% Haupt-GUI-Thread heraus erfolgt. Aus diesem Grund müssen alle Aufrufe in der
+% faceAtPosition() besonders gesichert werden.
 %
-The rendering thread has to be notified explicitly of changes in the size of the OpenGL view port.
+The rendering thread has to be notified explicitly of changes in the size of
+the OpenGL view port.
 %
 %
 This becomes necessary when, e.g., the size of a window gets altered.
 %
-The function\lstinline|resizeEvent()| takes care of this and calls the\lstinline|resizeViewPort| member of the rendering thread via\lstinline|glt|.
+The function\lstinline|resizeEvent()| takes care of this and calls
+the\lstinline|resizeViewPort| member of the rendering thread
+via\lstinline|glt|.
 %
-This has to be followed by a call to the\lstinline|render()| function of the widget in order to wake up the rendering thread and to complete the changes in the view port.
+This has to be followed by a call to the\lstinline|render()| function of the
+widget in order to wake up the rendering thread and to complete the changes in
+the view port.
 %
 %%%\ifthenelse{\boolean{UseOrig}}
 %%%{
@@ -393,24 +445,38 @@ This has to be followed by a call to the\lstinline|render()| function of the wid
 130 }
 \end{lstlisting}
 %%%}
+
 %
-% Ist eine Größenänderung des OpenGL-Viewports nötig, zum Beispiel weil die Fenstergröße geändert wurde, so wird die neue Größe dem Rendering-Thread mitgeteilt: resizeViewport(). Danach weckt ein render() den Thread auf und die Änderung wird umgesetzt.
+% Ist eine Größenänderung des OpenGL-Viewports nötig, zum Beispiel weil die
+% Fenstergröße geändert wurde, so wird die neue Größe dem Rendering-Thread
+% mitgeteilt: resizeViewport(). Danach weckt ein render() den Thread auf und
+% die Änderung wird umgesetzt.
 %
-The main problem in multi-threaded OpenGL is a thread-safe usage of the OpenGL rendering context.
+The main problem in multi-threaded OpenGL is a thread-safe usage of the OpenGL
+rendering context.
 %
-To do this, we have to guard the access by a mutex for which we use Qt's\lstinline|QMutex| class.
+To do this, we have to guard the access by a mutex for which we use
+Qt's\lstinline|QMutex| class.
 %
-In the function\lstinline|lockGLContext()| the OpenGL widget takes ownership of the rendering context and locks the mutex.
+In the function\lstinline|lockGLContext()| the OpenGL widget takes ownership of
+the rendering context and locks the mutex.
 %
 \todo{calling thread = always main thread? }
-In order to finally use it we have to call the\lstinline|makeCurrent()| function which is inherited from the base class\lstinline|QGLWidget|,
-to make the render context current for the calling thread.
+In order to finally use it we have to call the\lstinline|makeCurrent()|
+function which is inherited from the base class\lstinline|QGLWidget|, to make
+the render context current for the calling thread.
 %
-The inverse operation consists of notifying the thread that we are done with the rendering context, which we do by calling the\lstinline|doneCurrent()| function (inherited from\lstinline|QGLWidget| as well), and to unlock the mutex.
+The inverse operation consists of notifying the thread that we are done with
+the rendering context, which we do by calling the\lstinline|doneCurrent()|
+function (inherited from\lstinline|QGLWidget| as well), and to unlock the
+mutex.
 %
-This unties the rendering context and it becomes available for other threads again.
+This unties the rendering context and it becomes available for other threads
+again.
 %
-Each time we invoke the picking we will have to use\lstinline|lockGLContext()| and\lstinline|unlockGLContext()| to achieve a thread-safe access to the rendering context.
+Each time we invoke the picking we will have to use\lstinline|lockGLContext()|
+and\lstinline|unlockGLContext()| to achieve a thread-safe access to the
+rendering context.
 %%%\ifthenelse {\boolean{UseOrig}}
 %%%{
 %%%\begin{lstlisting}
@@ -452,9 +518,17 @@ Each time we invoke the picking we will have to use\lstinline|lockGLContext()| a
 148
 \end{lstlisting}
 % % % }
-% Die beiden obigen Methoden dienen dazu, den Rendering-Kontext des QGLWidgets aus mehren Threads heraus benutzen zu können. In diesem Beispiel ist dies wichtig, da das Picking aus dem Haupt-GUI-Thread heraus aufgerufen wird. lockGLContext() sichert über einen QMutex den Zugriff auf den Rendering-Context für den aufrufenden Thread und aktiviert ihn: makeCurrent(). Analog dazu macht unlockGLContext() dies wieder rückgängig und gibt den Rendering-Context frei.
+% Die beiden obigen Methoden dienen dazu, den Rendering-Kontext des QGLWidgets
+% aus mehren Threads heraus benutzen zu können. In diesem Beispiel ist dies
+% wichtig, da das Picking aus dem Haupt-GUI-Thread heraus aufgerufen wird.
+% lockGLContext() sichert über einen QMutex den Zugriff auf den
+% Rendering-Context für den aufrufenden Thread und aktiviert ihn:
+% makeCurrent(). Analog dazu macht unlockGLContext() dies wieder rückgängig und
+% gibt den Rendering-Context frei.
 %
-The purpose of the\lstinline|render()| function is to wake up the rendering thread by means of a\lstinline|QWaitCondition| so that the rendering thread can generate a new frame.
+The purpose of the\lstinline|render()| function is to wake up the rendering
+thread by means of a\lstinline|QWaitCondition| so that the rendering thread can
+generate a new frame.
 %
 %%%\ifthenelse {\boolean{UseOrig}}
 %%%{
@@ -475,13 +549,20 @@ The purpose of the\lstinline|render()| function is to wake up the rendering thre
 153 }
 \end{lstlisting}
 % % %}
-% Die render() Methode tut nicht mehr, als mit Hilfe einer QWaitCondition den wartenden Rendering-Thread aufzuwecken, damit dieser einen neuen Frame erzeugen kann.
+% Die render() Methode tut nicht mehr, als mit Hilfe einer QWaitCondition den
+% wartenden Rendering-Thread aufzuwecken, damit dieser einen neuen Frame
+% erzeugen kann.
 
 \subsection{examplerenderthread.cpp}
 
-Similar to the\lstinline|main()| function the class\lstinline|ExampleRenderThread| has a function\lstinline|run()| which provides the main loop for the tasks which are to be executed from within the thread.
+Similar to the\lstinline|main()| function the
+class\lstinline|ExampleRenderThread| has a function\lstinline|run()| which
+provides the main loop for the tasks which are to be executed from within the
+thread.
 %
-Its first action is to lock the render mutex of the GL widget and to make the rendering context of the OpeGL widget, via\lstinline|glw|, current in this thread.
+Its first action is to lock the render mutex of the GL widget and to make the
+rendering context of the OpeGL widget, via\lstinline|glw|, current in this
+thread.
 %
 %%%\ifthenelse {\boolean{UseOrig}}
 %%%{
@@ -505,11 +586,16 @@ Its first action is to lock the render mutex of the GL widget and to make the re
 % % %}
 % Den GL-Rendering-Kontext für das Rendern aus diesem Thread sichern.
 %
-The next steps are to initialize the OpenGL rendering pipeline by calling\lstinline|initializeGL()| and to start the rendering loop.
+The next steps are to initialize the OpenGL rendering pipeline by
+calling\lstinline|initializeGL()| and to start the rendering loop.
 %
 As long as\lstinline|render_flag| is set to true, the rendering is executed.
 %
-In our case this consists of checking the\lstinline|resize_flag| whether there is any modification to the view port to be carried out, executing the actual rendering by calling\lstinline|paintGL()|, see below, and to trigger swapping front and back buffer which is delegated to the\lstinline|swapBuffers()| member of the OpenGL widget via~\lstinline|glw|.
+In our case this consists of checking the\lstinline|resize_flag| whether there
+is any modification to the view port to be carried out, executing the actual
+rendering by calling\lstinline|paintGL()|, see below, and to trigger swapping
+front and back buffer which is delegated to the\lstinline|swapBuffers()| member
+of the OpenGL widget via~\lstinline|glw|.
 %
 %%%\ifthenelse {\boolean{UseOrig}}
 %%%{
@@ -555,19 +641,25 @@ In our case this consists of checking the\lstinline|resize_flag| whether there i
  97
 \end{lstlisting}
 %%%}
-%Da das automatische Wechseln des Buffers im QGLWidget deaktiviert wurde, muss es hier manuell nach dem Zeichnen geschehen.
-To make picking work we have to release the OpenGL render context within the\lstinline|while|-loop.
+
+%Da das automatische Wechseln des Buffers im QGLWidget deaktiviert wurde, muss
+%es hier manuell nach dem Zeichnen geschehen.
+To make picking work we have to release the OpenGL render context within
+the\lstinline|while|-loop.
 %
 We have to wait until the GL widget says that there is something to render.
 %
-This is why\lstinline|glw.lockGlContext()| had to be called before (see top of the function).
+This is why\lstinline|glw.lockGlContext()| had to be called before (see top of
+the function).
 %
-The call to\lstinline|glw.renderCondition().wait(...)| releases the render mutex until the wait condition is met
- and will lock the render mutex again before exiting.
- %
+The call to\lstinline|glw.renderCondition().wait(...)| releases the render
+mutex until the wait condition is met and will lock the render mutex again
+before exiting.
+%
 Waiting this way instead of insane looping will not waste any CPU resources.
- %
- The last action before we leave the\lstinline|while|-loop is to get the OpenGL render context back.
+%
+The last action before we leave the\lstinline|while|-loop is to get the OpenGL
+render context back.
 %
 \begin{lstlisting}
  98         glw.doneCurrent();
@@ -576,11 +668,15 @@ Waiting this way instead of insane looping will not waste any CPU resources.
 107         glw.makeCurrent();
 \end{lstlisting}
 %
-%Der Thread gibt nach jedem Frame den Rendering-Kontext frei und legt sich schlafen. Wenn er über die QWaitCondition wieder geweckt wird, wird der Rendering-Kontext erneut für diesen Thread gesichert.
+%Der Thread gibt nach jedem Frame den Rendering-Kontext frei und legt sich
+%schlafen. Wenn er über die QWaitCondition wieder geweckt wird, wird der
+%Rendering-Kontext erneut für diesen Thread gesichert.
 %
-The rendering thread unlocks the rendering context after each frame and goes idle.
+The rendering thread unlocks the rendering context after each frame and goes
+idle.
 %
-If it is reactivated by means of the\lstinline|QWaitCondition|, the rendering context again is taken over.
+If it is reactivated by means of the\lstinline|QWaitCondition|, the rendering
+context again is taken over.
 %
 Finally, we unlock the render mutex before the\lstinline|run()| function exits.
 %%%\ifthenelse {\boolean{UseOrig}}
@@ -603,19 +699,27 @@ Finally, we unlock the render mutex before the\lstinline|run()| function exits.
 % % %}
 %Am Ende muss der Rendering-Kontext wieder freigegeben werden.
 %
-The details of rendering a cube are encapsulated in the\lstinline|draw()| function.
+The details of rendering a cube are encapsulated in the\lstinline|draw()|
+function.
 %
-Basically, for each of the cube's surfaces we loop over the four corners and in clockwise or counter-clockwise order and ask OpenGL to draw the vertexes one after another.
+Basically, for each of the cube's surfaces we loop over the four corners and in
+clockwise or counter-clockwise order and ask OpenGL to draw the vertexes one
+after another.
 %
-The crucial point to make the picking work is to assign a name to each surface which happens by calling\lstinline| glLoadName(i)| from the OpenGL library and passing the index of the current surface as its argument.
+The crucial point to make the picking work is to assign a name to each surface
+which happens by calling\lstinline| glLoadName(i)| from the OpenGL library and
+passing the index of the current surface as its argument.
 %
-Because we have so few surfaces we do not need to take any further steps of caution.
+Because we have so few surfaces we do not need to take any further steps of
+caution.
 %
-However, there are only 64 surfaces identifiers possible which might become a problem in larger scenes.
+However, there are only 64 surfaces identifiers possible which might become a
+problem in larger scenes.
 %
 But that is beyond the scope of this article.
 %
-In order to have each surface appear in one color we set the color before we loop over the surface's vertexes.
+In order to have each surface appear in one color we set the color before we
+loop over the surface's vertexes.
 %\ifthenelse {\boolean{UseOrig}}
 %{
 %\begin{lstlisting}
@@ -667,29 +771,36 @@ Last but not least we come to the main topic, the implementation of the picking.
 %
 As before, the very first action is to lock the rendering context.
 
-Once a surface has been clicked on, its ``name" can be found at the fourth position of the hit buffer.
+Once a surface has been clicked on, its ``name" can be found at the fourth
+position of the hit buffer.
 %
-As in any other example about picking with OpenGL we allocate the hit buffer with 512 elements.
+As in any other example about picking with OpenGL we allocate the hit buffer
+with 512 elements.
 %
 To make OpenGL write to it we have to invoke\lstinline|glSelectBuffer(MaxSize, buffer)|.
-% 197, 198 : this is the same as in every OpenGL picking example.  See below for an explanation on the buffer content
-% 232 - 241:
- Each hit takes 4 items in the buffer.
+% 197, 198 : this is the same as in every OpenGL picking example.  See below
+% for an explanation on the buffer content 232 - 241:
+Each hit takes 4 items in the buffer.
 %
- The first item is the number of names on the name stack when the hit occurred.
+The first item is the number of names on the name stack when the hit occurred.
 %
- The second item is the minimum and the third item is the maximum $z$-value of all the vertexes that intersected
- the viewing area at the time of the hit.
- %
- The last item is the content of the name stack, i.e. the name of the object, at that time.
+The second item is the minimum and the third item is the maximum $z$-value of
+all the vertexes that intersected the viewing area at the time of the hit.
 %
- We are only interested in the name of the object, i.e. the number of the surface.
+The last item is the content of the name stack, i.e. the name of the object,
+at that time.
+%
+We are only interested in the name of the object, i.e. the number of the
+surface.
 
- For the picking we have to activate the corresponding rendering mode by calling\lstinline|glRenderMode(GL_SELECT)|.
+For the picking we have to activate the corresponding rendering mode by
+calling\lstinline|glRenderMode(GL_SELECT)|.
 %
-After that follow the standard OpenGL commands to execute the picking and drawing the scene.
+After that follow the standard OpenGL commands to execute the picking and
+drawing the scene.
 
-At the end we have to release the rendering context again and return the name of the clicked surface.
+At the end we have to release the rendering context again and return the name
+of the clicked surface.
 %
 %%%\ifthenelse {\boolean{UseOrig}}
 %%%{
@@ -791,7 +902,11 @@ At the end we have to release the rendering context again and return the name of
 243 }
 \end{lstlisting}
 %%%}
-% Hier nun die Implementation des GL-Picking. Damit diese Methode gefahrlos aus einem anderen Thread aufgerufen werden kann, muss sie sich erst den Rendering-Kontext sichern. Wurde eine Fläche des Würfels angeklickt so findet sich der “Name” der Fläche (siehe Zeile 181 oben) im Hit-Buffer an der vierten Stelle.
+% Hier nun die Implementation des GL-Picking. Damit diese Methode gefahrlos aus
+% einem anderen Thread aufgerufen werden kann, muss sie sich erst den
+% Rendering-Kontext sichern. Wurde eine Fläche des Würfels angeklickt so findet
+% sich der “Name” der Fläche (siehe Zeile 181 oben) im Hit-Buffer an der
+% vierten Stelle.
 % Lizenz
 
 \section{Results and Conclusion}
@@ -803,23 +918,29 @@ At the end we have to release the rendering context again and return the name of
   {threadedcube_screenshot.png}
  %
  %\vspace{-.2cm}
-\caption{Screenshot of application with active context menu after picking the left face.
+\caption{Screenshot of application with active context menu after picking the
+  left face.
 }
   \label{fig:screenshot}
 \end{center}
 \end{figure}
 
-We have shown how to implement multi-threaded OpenGL with picking capabilities based on Qt's OpenGL and Thread modules.
+We have shown how to implement multi-threaded OpenGL with picking capabilities
+based on Qt's OpenGL and Thread modules.
 %
-To this end, we combined two existing Qt sample programs~\cite{glimpse3d,Blanchette2008}.
+To this end, we combined two existing Qt sample
+programs~\cite{glimpse3d,Blanchette2008}.
 %
-The thread-safe access to the OpenGL rendering context from different threads is realized by guarding it with a mutex which gets locked and unlocked each time a thread takes temporary ownership of the rendering context.
+The thread-safe access to the OpenGL rendering context from different threads
+is realized by guarding it with a mutex which gets locked and unlocked each
+time a thread takes temporary ownership of the rendering context.
 %
 A screenshot of our sample program is given in figure~\ref{fig:screenshot}.
 %
 
 
-This code has been licensed under the GNU Public License (GPL) and is available from {\sf mih.voxindeserto.de/threadedcube.html}.
+This code has been licensed under the GNU Public License (GPL) and is available
+from {\sf mih.voxindeserto.de/threadedcube.html}.
 
 
 
