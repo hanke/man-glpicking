@@ -1,10 +1,10 @@
-\documentclass[prodmode,acmtopc]{acmsmall}
+%\documentclass[prodmode,acmtopc]{acmsmall}
     %\acmVolume{V}
                  %\acmNumber{N}
                  %\acmArticle{A}
                  %\acmYear{YYYY}
                  %\acmMonth{0}
-
+\documentclass[jou,noapacite]{apa}
 
 
 \usepackage{graphicx}
@@ -56,7 +56,7 @@
 %
 \lstset{ %
 language=C++,                % choose the language of the code
-basicstyle=\ \ttfamily,       % the size of the fonts that are used for the code
+basicstyle=\scriptsize \ttfamily,       % the size of the fonts that are used for the code
 frame=lines,
 framextopmargin=3pt,
 framexbottommargin=3pt,
@@ -87,95 +87,108 @@ morekeywords={*,__global__, __device__, __shared__}            % if you want to 
 
 
 
-%\def\mybeginwidetext{\begin{widetext}}\def\myendwidetext{\end{widetext}}
+%%\def\mybeginwidetext{\begin{widetext}}\def\myendwidetext{\end{widetext}}
+%%
+%\def\mybeginwidetext{}\def\myendwidetext{}
 %
-\def\mybeginwidetext{}\def\myendwidetext{}
-
-\usepackage{color}
-\newcommand{\mydiffX}[2]{ {\color{blue}#1} $\to$ {\sf\color{red}#2} }
-\newcommand{\mydiff}[2]{{}{\color{red}#2}}
-
+%\usepackage{color}
+%\newcommand{\mydiffX}[2]{ {\color{blue}#1} $\to$ {\sf\color{red}#2} }
+%\newcommand{\mydiff}[2]{{}{\color{red}#2}}
+%
 \newcommand{\todo}[1]{\marginpar{\color{red}#1}}
-
+%
 \def\mytitle{Multi-threaded OpenGL with Picking Capabilities the Qt-Way}
-
-
-\markboth{S. C. Kramer and M. Hanke.}{Multi-threaded OpenGL with Qt}
-
-
-\usepackage{ifthen}
-
-
-
-\newboolean{UseOrig}
-\setboolean{UseOrig}{false}
-
-% revtex: doc begins here
-% \begin{document}
-
-
-
-%======================================================================
+%
+%
+\rightheader{Multi-threaded OpenGL with Qt}
+\leftheader{S. C. Kramer and M. Hanke}
+%
+%\usepackage{ifthen}
+%
+%
+%
+%\newboolean{UseOrig}
+%\setboolean{UseOrig}{false}
+%
+%% revtex: doc begins here
+%% \begin{document}
+%
+%
+%
+%%======================================================================
 \title{
 \mytitle
- }
-
-% acmsmall format
- \author{STEPHAN C. KRAMER$^a$  and MICHAEL HANKE$^{b,c}$
- \affil{\\
- $^a$Georg-August-University, G\"ottingen, Germany\\
- $^b$Institute of Psychology II, Otto-von-Guericke-University, Magdeburg, Germany\\
- $^c$Center for Behavioral Brain Sciences, Magdeburg, Germany
- }
- }
-% \maketitle % svmult
-%======================================================================
+}
 %
+%% acmsmall format
+% \author{STEPHAN C. KRAMER$^a$  and MICHAEL HANKE$^{b,c}$
+% \affil{\\
+% }
+% }
+\twoauthors{Stephan~C.~Kramer}{Michael~Hanke}
+\twoaffiliations{%
+Georg-August-University, G\"ottingen, Germany
+}{%
+Institute of Psychology II, Otto-von-Guericke-University, Magdeburg, Germany\\
+Center for Behavioral Brain Sciences, Magdeburg, Germany
+}
 
-\begin{abstract} % revtex, acmsmall
-We discuss how to realize multi-threaded
+
+%% \maketitle % svmult
+%%======================================================================
+%%
+%
+%\begin{abstract} % revtex, acmsmall
+\abstract{We discuss how to realize multi-threaded
 OpenGL with picking capabilities based on Qt's OpenGL and Thread modules by
 combining two existing Qt sample programs.
 %
 The main problem is a thread-safe access to the OpenGL rendering context from
 different threads.
-%\input{content/abstract_cublas++}
-\end{abstract}
+}
+%%\input{content/abstract_cublas++}
+%\end{abstract}
+%
+%
+%% acmsmall
+% % \category{D.1.5}{Programming Techniques}{Object-Oriented Programming}
+%%  \category{D.2.2}{Software Engineering}{Design Tools and Techniques}[Software libraries \and Object-oriented design methods]
+%%   \category{D.2.3}{Software Engineering}{Coding Tools and Techniques}[Object-oriented programming]
+%%   \category{D.2.11}{Software Engineering}{Software Architectures}[Domain-specific architectures]
+%     \category{D.1.3}{Programming Techniques}{Concurrent Programming}[Parallel programming]
+%  %  \category{D.2.m}{Software Engineering}{Miscellaneous}{}
+%%   \category{G.4}{Mathematical Software}{Parallel and vector implementations}
+%                 \terms{Algorithms, Design, Performance, Reliability}
+%                 \keywords{Parallel programming, C++-library, OpenGL}
+%                 \acmformat{Stephan C. Kramer and Michael Hanke. 2010.
+%                 \mytitle
+%                 }
+\acknowledgements{%
+  Author's addresses: S. C. Kramer,
+  Max-Planck-Institut f\"ur biophysikalische Chemie,
+  Am Fa\ss{}berg 11,
+  37077 G\"ottingen, Germany,
+  Institut f\"ur Numerische und Angewandte Mathematik,
+  Universit\"at G\"ottingen,
+  Lotzestra\ss{}e 16-18, 37083 G\"ottingen, Germany.
+  M.~Hanke,
+  Otto-von-Guericke-Universit\"at,
+  Institut  f\"ur Psychologie II,
+  Universit\"atsplatz 2,
+  39106 Magdeburg, Germany.
+}
+\journal{Journal name}
+\volume{Volume, number, pages}
+\ccoppy{Copyright notice}
+\copnum{Serial number or other reference}
 
 
-% acmsmall
- % \category{D.1.5}{Programming Techniques}{Object-Oriented Programming}
-%  \category{D.2.2}{Software Engineering}{Design Tools and Techniques}[Software libraries \and Object-oriented design methods]
-%   \category{D.2.3}{Software Engineering}{Coding Tools and Techniques}[Object-oriented programming]
-%   \category{D.2.11}{Software Engineering}{Software Architectures}[Domain-specific architectures]
-     \category{D.1.3}{Programming Techniques}{Concurrent Programming}[Parallel programming]
-  %  \category{D.2.m}{Software Engineering}{Miscellaneous}{}
-%   \category{G.4}{Mathematical Software}{Parallel and vector implementations}
-                 \terms{Algorithms, Design, Performance, Reliability}
-                 \keywords{Parallel programming, C++-library, OpenGL}
-                 \acmformat{Stephan C. Kramer and Michael Hanke. 2010.
-                 \mytitle
-                 }
-  \begin{document}
-                 \begin{bottomstuff}
-                 Author's addresses: S. C. Kramer,
-                 Max-Planck-Institut f\"ur biophysikalische Chemie,
-                 Am Fa\ss{}berg 11,
-                 37077 G\"ottingen, Germany,
-                 Institut f\"ur Numerische und Angewandte Mathematik,
-                 Universit\"at G\"ottingen,
-                 Lotzestra\ss{}e 16-18, 37083 G\"ottingen, Germany.
-                 M.~Hanke,
-                 Otto-von-Guericke-Universit\"at,
-                 Institut  f\"ur Psychologie II,
-                 Universit\"atsplatz 2,
-                 39106 Magdeburg, Germany.
-                 \end{bottomstuff}
+\begin{document}
 
- \maketitle % revtex
-%\tableofcontents
-
-
+\maketitle
+%%\tableofcontents
+%
+%
 %\newpage
 %%=================================
 %%
@@ -911,19 +924,19 @@ of the clicked surface.
 
 \section{Results and Conclusion}
 
-\begin{figure}[tbp]
+\begin{figure*}[tbp]
 \begin{center}
-  \includegraphics[width=.95\textwidth  %, clip, trim = 50mm 74mm 100mm 36mm
+  \includegraphics[width=.95\linewidth  %, clip, trim = 50mm 74mm 100mm 36mm
   ]
   {threadedcube_screenshot.png}
  %
  %\vspace{-.2cm}
-\caption{Screenshot of application with active context menu after picking the
+  \centeredcaption{.95\linewidth}{Screenshot of application with active context menu after picking the
   left face.
 }
   \label{fig:screenshot}
 \end{center}
-\end{figure}
+\end{figure*}
 
 We have shown how to implement multi-threaded OpenGL with picking capabilities
 based on Qt's OpenGL and Thread modules.
@@ -952,15 +965,15 @@ from {\sf mih.voxindeserto.de/threadedcube.html}.
 
 
 \bibitem{nehe32}
-[1] Molofee, J., 1997-2012. {\itshape Picking, Alpha Blending, Alpha Testing, Sorting}. OpenGL Tutorial, Lesson {\bf 32}. Neon Helium Productions. http://nehe.gamedev.net/
+Molofee, J., 1997-2012. {\itshape Picking, Alpha Blending, Alpha Testing, Sorting}. OpenGL Tutorial, Lesson {\bf 32}. Neon Helium Productions. http://nehe.gamedev.net/
 
 
 \bibitem{glimpse3d}
-[2]~Kjern\r{a}sen, T., 2003. {\itshape Glimpsing the third dimension}. Qt Quarterly {\bf 6}. Trolltech.
+Kjern\r{a}sen, T., 2003. {\itshape Glimpsing the third dimension}. Qt Quarterly {\bf 6}. Trolltech.
 
 \bibitem%[\protect\citeauthoryear{Blanchette and Summerfield}{2008}]
 {Blanchette2008}
-[3]~Blanchette, J. and Summerfield, M., 2008. {\itshape C++ GUI Programming with Qt
+Blanchette, J. and Summerfield, M., 2008. {\itshape C++ GUI Programming with Qt
   4}.   Prentice Hall PTR.
 \end{thebibliography}
 
