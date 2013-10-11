@@ -93,7 +93,7 @@ morekeywords={*,__global__, __device__, __shared__}            % if you want to 
 %\def\mybeginwidetext{}\def\myendwidetext{}
 %
 %\usepackage{color}
-\newcommand{\mydiffX}[2]{{\color{blue}#1} $\to$ {\color{red}#2}}
+%\newcommand{\mydiffX}[2]{{\color{blue}#1} $\to$ {\color{red}#2}}
 %\newcommand{\mydiff}[2]{{}{\color{red}#2}}
 %\newcommand{\mydiffX}[2]{{}{#2}}
 %
@@ -236,7 +236,7 @@ combination of two existing programs.
 The first one is taken from \cite[chapter 8]{Blanchette2008} which we modify
 such that it renders a cube and not a tetrahedron. This program provides the
 ``OpenGL with picking+Qt'' part implemented 
-\mydiffX{with a}{by subclassing QT's} \lstinline|QGLWidget|.
+by subclassing QT's \lstinline|QGLWidget|.
 %
 The second part, i.e. the concurrent rendering, is taken from \cite{glimpse3d}.
 %
@@ -326,7 +326,7 @@ reference \lstinline|glt| to the object of type \lstinline|ExampleGLWidget|.
 %
 Furthermore, we have to turn off the automatic swapping of the frame buffer
 since this has to happen in the rendering thread. Finally, the rendering thread
-\mydiffX{as}{has} to be activated (line 50, listing \ref{lst:ctor}).
+has to be activated (line 50, listing \ref{lst:ctor}).
 %
 %%%\ifthenelse {\boolean{UseOrig}}
 %%%{
@@ -377,7 +377,7 @@ In line 81 we ask the rendering thread via the reference \lstinline|glt| for the
 cube's face under the current mouse position.
 %
 The function \lstinline|faceAtPosition()| is a method of the
-class \lstinline|ExampleRenderThread| \mydiffX{(see XXX)}{, cf. Appendix \ref{sec:app-d},} which implements the
+class \lstinline|ExampleRenderThread|, cf. Appendix \ref{sec:app-d}, which implements the
 GL-picking.
 %
 Note that we call the method from the main thread.
@@ -476,7 +476,7 @@ the view port.
 129   render();
 130 }
 \end{lstlisting}
-\caption{Pass resize events \mydiffX{onto}{on to} the rendering thread}
+\caption{Pass resize events on to the rendering thread}
 \label{lst:resize}
 \end{figure}
 %%%}
@@ -602,7 +602,7 @@ class \lstinline|ExampleRenderThread| has a function \lstinline|run()| which
 provides the main loop for the tasks which are to be executed from within the
 thread.
 %
-Its first action is to lock the render mutex of the \mydiffX{GL}{OpenGL} widget and to make the
+Its first action is to lock the render mutex of the OpenGL widget and to make the
 rendering context of the OpenGL widget, via \lstinline|glw|, current in this
 thread (listing \ref{lst:run}).
 %
@@ -636,7 +636,7 @@ thread (listing \ref{lst:run}).
 The next steps are to initialize the OpenGL rendering pipeline by
 calling \lstinline|initializeGL()| and to start the rendering loop.
 %
-As long as \lstinline|render_flag| is set to \mydiffX{true}{\lstinline[keywordstyle=\color{black}]|true|}, the rendering is executed.
+As long as \lstinline|render_flag| is set to \lstinline[keywordstyle=\color{black}]|true|, the rendering is executed.
 %
 In our case this consists of checking the \lstinline|resize_flag| whether there
 is any modification to the view port to be carried out, executing the actual
@@ -702,7 +702,7 @@ the \lstinline[keywordstyle=\color{black}]|while|-loop.
 We have to wait until the GL widget says that there is something to render.
 %
 This is why \lstinline|glw.lockGlContext()| had to be called before (see top of
-the \mydiffX{}{\lstinline|run()|} function).
+the \lstinline|run()| function).
 %
 The call to \lstinline|glw.renderCondition().wait(...)| releases the render
 mutex until the wait condition is met and will lock the render mutex again
@@ -837,7 +837,7 @@ Last but not least we come to the main topic, the implementation of the picking.
 %
 As before, the very first action is to lock the rendering context.
 %
-Once a surface has been \mydiffX{clicked on}{double-clicked}, its ``name" can be found at the fourth
+Once a surface has been double-clicked, its ``name" can be found at the fourth
 position of the hit buffer.
 %
 As in any other example about picking with OpenGL we allocate the hit buffer
@@ -943,7 +943,7 @@ After that follow the standard OpenGL commands to execute the picking and
 drawing the scene.
 %
 At the end we have to release the rendering context again and return the name
-of the \mydiffX{clicked}{selected} surface (listing \ref{lst:picking}).
+of the selected surface (listing \ref{lst:picking}).
 %
 \begin{figure}[h]
 \begin{lstlisting}[basicstyle=\scriptsize]
@@ -1006,7 +1006,7 @@ of the \mydiffX{clicked}{selected} surface (listing \ref{lst:picking}).
 \end{center}
 \end{figure*}
 
-We have shown how to implement \mydiffX{multi-threaded OpenGL with picking capabilities}{OpenGL with picking capabilities in a multi-threaded fashion}
+We have shown how to implement OpenGL with picking capabilities in a multi-threaded fashion
 based on Qt's OpenGL and Thread modules.
 %
 To this end, we combined two existing Qt sample
