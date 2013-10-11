@@ -244,9 +244,9 @@ and not only from the rendering thread.
 In the following we show the crucial parts of the source code, i.e. the
 modifications we have to apply to the program by Blanchette and Summerfield.
 %
-The full source  code is available from {\sf
-mih.voxindeserto.de/threadedcube.html} and has been licensed under the GNU
-Public License (GPL).
+The full source code is listed in the appendix and is also available from
+\url{http://mih.voxindeserto.de/threadedcube.html}. All source code has been
+licensed under the GNU Public License (GPL).
 
 
 
@@ -271,7 +271,7 @@ list of headers we have to include.
 %
 In particular, in case of Linux we need the main header for the {\sf XLib}
 library which is encapsulated by a preprocessor directive using a built-in Qt
-macro.
+macro (see listing \ref{lst:initthreads}).
 %
 %\ifthenelse{\boolean{UseOrig}}
 %{
@@ -299,6 +299,7 @@ macro.
 #endif
 \end{lstlisting}
 \caption{Required initialization of X threads}
+\label{lst:initthreads}
 \end{figure}
 %}
 
@@ -307,9 +308,6 @@ of a Qt application.
 
 
 \subsection{exampleglwidget.h}
-
-\todo{\small Should we include the header to give a detailed overview of the
-class? }
 
 The class \lstinline|ExampleGLWidget| extends \lstinline|QGLWidget| and only
 displays the results of the rendering which is done concurrently in a different
@@ -325,7 +323,7 @@ reference \lstinline|glt| to the object of type \lstinline|ExampleGLWidget|.
 %
 Furthermore, we have to turn off the automatic swapping of the frame buffer
 since this has to happen in the rendering thread. Finally, the rendering thread
-as to be activated (line 50).
+as to be activated (line 50, listing \ref{lst:ctor}).
 %
 %%%\ifthenelse {\boolean{UseOrig}}
 %%%{
@@ -360,6 +358,7 @@ as to be activated (line 50).
  51 }
 \end{lstlisting}
 \caption{Constructor setup}
+\label{lst:ctor}
 \end{figure}
 %%%}
 
@@ -369,7 +368,7 @@ The handling of the corresponding mouse event has to be done by
 the \lstinline|ExampleGLWidget| class.
 %
 To implement this we have to overwrite the \lstinline|mouseDoubleClickEvent| of
-the base class.
+the base class (listing \ref{lst:dclick}).
 
 In line 81 we ask the rendering thread via the reference \lstinline|glt| for the
 cube's face under the current mouse position.
@@ -384,8 +383,8 @@ Note that we call the method from the main thread.
 Therefore, all calls to \lstinline|faceAtPosition()| have to be guarded by
 mutexes to maintain thread-safety.
 %
-This is hidden in the lock/-unlock mechanism for the OpenGL rendering context,
-see below.
+This is hidden in the lock/-unlock mechanism for the OpenGL rendering context
+(see listing \ref{lst:concur}).
  %
 %%% \ifthenelse {\boolean{UseOrig}}
 %%% {
@@ -427,6 +426,7 @@ see below.
  91 }
 \end{lstlisting}
 \caption{Trigger picking via double-click}
+\label{lst:dclick}
 \end{figure}
 %%%}
 
@@ -444,7 +444,7 @@ This becomes necessary when, e.g., the size of a window gets altered.
 %
 The function \lstinline|resizeEvent()| takes care of this and calls
 the \lstinline|resizeViewPort| member of the rendering thread
-via \lstinline|glt|.
+via \lstinline|glt| (listing \ref{lst:resize}).
 %
 This has to be followed by a call to the \lstinline|render()| function of the
 widget in order to wake up the rendering thread and to complete the changes in
@@ -474,6 +474,7 @@ the view port.
 130 }
 \end{lstlisting}
 \caption{Pass resize events onto the rendering thread}
+\label{lst:resize}
 \end{figure}
 %%%}
 
@@ -490,7 +491,7 @@ To do this, we have to guard the access by a mutex for which we use
 Qt's \lstinline|QMutex| class.
 %
 In the function \lstinline|lockGLContext()| the OpenGL widget takes ownership of
-the rendering context and locks the mutex.
+the rendering context and locks the mutex (listing \ref{lst:concur}).
 %
 In order to finally use it we have to call the \lstinline|makeCurrent()|
 function which is inherited from the base class \lstinline|QGLWidget|, to make
@@ -549,6 +550,7 @@ rendering context.
 148
 \end{lstlisting}
 \caption{Protect concurrent access to the rendering thread}
+\label{lst:concur}
 \end{figure}
 % % % }
 % Die beiden obigen Methoden dienen dazu, den Rendering-Kontext des QGLWidgets
@@ -561,7 +563,7 @@ rendering context.
 
 The purpose of the \lstinline|render()| function is to wake up the rendering
 thread by means of a \lstinline|QWaitCondition| so that the rendering thread can
-generate a new frame.
+generate a new frame (listing \ref{lst:render}).
 %
 %%%\ifthenelse {\boolean{UseOrig}}
 %%%{
@@ -583,6 +585,7 @@ generate a new frame.
 153 }
 \end{lstlisting}
 \caption{Trigger rendering thread to generate a new frame}
+\label{lst:render}
 \end{figure}
 % % %}
 % Die render() Methode tut nicht mehr, als mit Hilfe einer QWaitCondition den
@@ -598,7 +601,7 @@ thread.
 %
 Its first action is to lock the render mutex of the GL widget and to make the
 rendering context of the OpenGL widget, via \lstinline|glw|, current in this
-thread.
+thread (listing \ref{lst:run}).
 %
 %%%\ifthenelse {\boolean{UseOrig}}
 %%%{
@@ -621,6 +624,7 @@ thread.
 78
 \end{lstlisting}
 \caption{Take over GL context in rendering thread}
+\label{lst:run}
 \end{figure}
 % % %}
 % Den GL-Rendering-Kontext für das Rendern aus diesem Thread sichern.
@@ -633,9 +637,9 @@ As long as \lstinline|render_flag| is set to true, the rendering is executed.
 %
 In our case this consists of checking the \lstinline|resize_flag| whether there
 is any modification to the view port to be carried out, executing the actual
-rendering by calling \lstinline|paintGL()|, see below, and to trigger swapping
+rendering by calling \lstinline|paintGL()| (see listing \ref{lst:rloop}) and to trigger swapping
 front and back buffer which is delegated to the \lstinline|swapBuffers()| member
-of the OpenGL widget via~\lstinline|glw|.
+of the OpenGL widget via~\lstinline|glw| (listing \ref{lst:rloop}).
 %
 %%%\ifthenelse {\boolean{UseOrig}}
 %%%{
@@ -683,6 +687,7 @@ of the OpenGL widget via~\lstinline|glw|.
  97
 \end{lstlisting}
 \caption{Start rendering loop}
+\label{lst:rloop}
 \end{figure}
 %%%}
 
@@ -703,7 +708,7 @@ before exiting.
 Waiting this way instead of insane looping will not waste any CPU resources.
 %
 The last action before we leave the \lstinline[keywordstyle=\color{black}]|while|-loop is to get the OpenGL
-render context back.
+render context back (listing \ref{lst:waitcond}).
 %
 \begin{figure}[h]
 \begin{lstlisting}[basicstyle=\scriptsize]
@@ -714,6 +719,7 @@ render context back.
 107     glw.makeCurrent();
 \end{lstlisting}
 \caption{Release GL context when not rendering}
+\label{lst:waitcond}
 \end{figure}
 
 %Der Thread gibt nach jedem Frame den Rendering-Kontext frei und legt sich
@@ -726,7 +732,8 @@ idle.
 If it is reactivated by means of the \lstinline|QWaitCondition|, the rendering
 context again is taken over.
 %
-Finally, we unlock the render mutex before the \lstinline|run()| function exits.
+Finally, we unlock the render mutex before the \lstinline|run()| function exits
+(listing \ref{lst:done}).
 %%%\ifthenelse {\boolean{UseOrig}}
 %%%{
 %%%\begin{lstlisting}
@@ -746,12 +753,13 @@ Finally, we unlock the render mutex before the \lstinline|run()| function exits.
 115 }
 \end{lstlisting}
 \caption{Unlock GL context at the very end}
+\label{lst:done}
 \end{figure}
 % % %}
 %Am Ende muss der Rendering-Kontext wieder freigegeben werden.
 
 The details of rendering a cube are encapsulated in the \lstinline|draw()|
-function.
+function (listing \ref{lst:draw}).
 %
 Basically, for each of the cube's surfaces we loop over the four corners in
 clockwise or counter-clockwise order and ask OpenGL to draw the vertexes one
@@ -817,6 +825,7 @@ loop over the surface's vertexes.
 191 }
 \end{lstlisting}
 \caption{Assign names to surfaces to enable picking}
+\label{lst:draw}
 \end{figure}
 %}
 %Zeile 181 ist der Schlüssel für das Picking: jeder Würfelfläche wird hier ein “Name” zugewiesen, über den diese identifiziert werden kann. Leider gibt es davon nur 64. Aber das ist ein anderes Thema.
@@ -829,7 +838,7 @@ Once a surface has been clicked on, its ``name" can be found at the fourth
 position of the hit buffer.
 %
 As in any other example about picking with OpenGL we allocate the hit buffer
-with 512 elements.
+with 512 elements (listing \ref{lst:hitbuf}).
 %
 To make OpenGL write to it we have to invoke \lstinline|glSelectBuffer(MaxSize, buffer)|.
 % 197, 198 : this is the same as in every OpenGL picking example.  See below
@@ -921,6 +930,7 @@ surface.
 ...
 \end{lstlisting}
 \caption{Initialize hit buffer for picking}
+\label{lst:hitbuf}
 \end{figure}
 
 For the picking we have to activate the corresponding rendering mode by
@@ -930,7 +940,7 @@ After that follow the standard OpenGL commands to execute the picking and
 drawing the scene.
 %
 At the end we have to release the rendering context again and return the name
-of the clicked surface.
+of the clicked surface (listing \ref{lst:picking}).
 %
 \begin{figure}[h]
 \begin{lstlisting}[basicstyle=\scriptsize]
@@ -964,6 +974,7 @@ of the clicked surface.
 243 }
 \end{lstlisting}
 \caption{Re-render for picking}
+\label{lst:picking}
 \end{figure}
 %%%}
 % Hier nun die Implementation des GL-Picking. Damit diese Methode gefahrlos aus
@@ -1008,8 +1019,6 @@ A screenshot of our sample program is given in figure~\ref{fig:screenshot}.
 
 This code has been licensed under the GNU Public License (GPL) and is available
 from \url{http://mih.voxindeserto.de/threadedcube.html}.
-\todo{I'd rather include it in the submission}
-
 
 
 \bibliographystyle{abbrv}
@@ -1029,5 +1038,32 @@ Kjern\r{a}sen, T., 2003. {\itshape Glimpsing the third dimension}. Qt Quarterly 
 Blanchette, J. and Summerfield, M., 2008. {\itshape C++ GUI Programming with Qt
   4}.   Prentice Hall PTR.
 \end{thebibliography}
+
+\appendix
+\onecolumn
+\lstset{ %
+frame=none,
+backgroundcolor=\color{white},
+}
+
+\section{Source code \texttt{main.cpp}}
+\lstinputlisting{src/main.cpp}
+\newpage
+
+\section{Source code \texttt{exampleglwidget.h}}
+\lstinputlisting{src/exampleglwidget.h}
+\newpage
+
+\section{Source code \texttt{exampleglwidget.cpp}}
+\lstinputlisting{src/exampleglwidget.h}
+\newpage
+
+\section{Source code \texttt{examplerenderthread.h}}
+\lstinputlisting{src/exampleglwidget.h}
+\newpage
+
+\section{Source code \texttt{examplerenderthread.cpp}}
+\lstinputlisting{src/exampleglwidget.h}
+\newpage
 
 \end{document}
