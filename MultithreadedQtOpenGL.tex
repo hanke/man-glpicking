@@ -1,11 +1,11 @@
+\documentclass[jou,noapacite]{apa}
+\pdfoutput=1
 %\documentclass[prodmode,acmtopc]{acmsmall}
     %\acmVolume{V}
                  %\acmNumber{N}
                  %\acmArticle{A}
                  %\acmYear{YYYY}
                  %\acmMonth{0}
-\documentclass[jou,noapacite]{apa}
-
 
 \usepackage{graphicx}
 \usepackage{amssymb,amsmath}
@@ -178,12 +178,15 @@ different threads.
   Universit\"atsplatz 2,
   39106 Magdeburg, Germany.
 }
-\journal{Journal name}
-\volume{Volume, number, pages}
-\ccoppy{Copyright notice}
-\copnum{Serial number or other reference}
+\journal{arXiv preprint}
+\volume{INSERT ID}
+\ccoppy{This work is licensed under a Creative Commons Attribution-ShareAlike 3.0 License}
+%\copnum{Serial number or other reference}
 
 
+\renewcommand{\figurename}{Listing}
+
+%
 \begin{document}
 
 \maketitle
@@ -295,9 +298,10 @@ macro.
   XInitThreads();
 #endif
 \end{lstlisting}
+\caption{Required initialization of X threads}
 \end{figure}
 %}
-%
+
 The rest of \lstinline|main.cpp| is left as it is and provides the usual setup
 of a Qt application.
 
@@ -355,8 +359,10 @@ as to be activated (line 50).
  50   initRendering();
  51 }
 \end{lstlisting}
+\caption{Constructor setup}
 \end{figure}
 %%%}
+
 The picking is to be triggered by a mouse double-click.
 %
 The handling of the corresponding mouse event has to be done by
@@ -369,7 +375,7 @@ In line 81 we ask the rendering thread via the reference \lstinline|glt| for the
 cube's face under the current mouse position.
 %
 The function \lstinline|faceAtPosition()| is a method of the
-class \lstinline|ExampleRenderThread|, see below, which implements the
+class \lstinline|ExampleRenderThread| (see XXX) which implements the
 GL-picking.
 %
 Note that we call the method from the main thread.
@@ -403,7 +409,9 @@ see below.
 %%%{
 \begin{figure}[h]
 \begin{lstlisting}[basicstyle=\scriptsize]
- 78 void ExampleGLWidget::mouseDoubleClickEvent(QMouseEvent *event)
+ 78 void
+    ExampleGLWidget::mouseDoubleClickEvent(
+                                    QMouseEvent *event)
  79 {
  80   // get the name of the clicked surface
  81   int face = glt.faceAtPosition(event->pos());
@@ -418,9 +426,10 @@ see below.
  90   }
  91 }
 \end{lstlisting}
+\caption{Trigger picking via double-click}
 \end{figure}
 %%%}
-%
+
 % Diese Funktion demonstriert das Picking. Der Aufruf in Zeile 81 holt die
 % ID-Nummer der angeklickten Würfel-Fläche. faceAtPosition() ist eine Methode
 % der Rendering-Thread-Klasse, in der das GL-Picking implementiert ist (siehe
@@ -430,7 +439,6 @@ see below.
 %
 The rendering thread has to be notified explicitly of changes in the size of
 the OpenGL view port.
-%
 %
 This becomes necessary when, e.g., the size of a window gets altered.
 %
@@ -465,6 +473,7 @@ the view port.
 129   render();
 130 }
 \end{lstlisting}
+\caption{Pass resize events onto the rendering thread}
 \end{figure}
 %%%}
 
@@ -483,10 +492,9 @@ Qt's \lstinline|QMutex| class.
 In the function \lstinline|lockGLContext()| the OpenGL widget takes ownership of
 the rendering context and locks the mutex.
 %
-\todo{calling thread = always main thread? }
 In order to finally use it we have to call the \lstinline|makeCurrent()|
 function which is inherited from the base class \lstinline|QGLWidget|, to make
-the render context current for the calling thread.
+the render context current for the calling or main thread.
 %
 The inverse operation consists of notifying the thread that we are done with
 the rendering context, which we do by calling the \lstinline|doneCurrent()|
@@ -540,6 +548,7 @@ rendering context.
 147 }
 148
 \end{lstlisting}
+\caption{Protect concurrent access to the rendering thread}
 \end{figure}
 % % % }
 % Die beiden obigen Methoden dienen dazu, den Rendering-Kontext des QGLWidgets
@@ -549,7 +558,7 @@ rendering context.
 % Rendering-Context für den aufrufenden Thread und aktiviert ihn:
 % makeCurrent(). Analog dazu macht unlockGLContext() dies wieder rückgängig und
 % gibt den Rendering-Context frei.
-%
+
 The purpose of the \lstinline|render()| function is to wake up the rendering
 thread by means of a \lstinline|QWaitCondition| so that the rendering thread can
 generate a new frame.
@@ -573,6 +582,7 @@ generate a new frame.
 152   renderCondition().wakeAll();
 153 }
 \end{lstlisting}
+\caption{Trigger rendering thread to generate a new frame}
 \end{figure}
 % % %}
 % Die render() Methode tut nicht mehr, als mit Hilfe einer QWaitCondition den
@@ -587,7 +597,7 @@ provides the main loop for the tasks which are to be executed from within the
 thread.
 %
 Its first action is to lock the render mutex of the GL widget and to make the
-rendering context of the OpeGL widget, via \lstinline|glw|, current in this
+rendering context of the OpenGL widget, via \lstinline|glw|, current in this
 thread.
 %
 %%%\ifthenelse {\boolean{UseOrig}}
@@ -610,10 +620,12 @@ thread.
 77   glw.lockGLContext();
 78
 \end{lstlisting}
+\caption{Take over GL context in rendering thread}
 \end{figure}
 % % %}
 % Den GL-Rendering-Kontext für das Rendern aus diesem Thread sichern.
 %
+
 The next steps are to initialize the OpenGL rendering pipeline by
 calling \lstinline|initializeGL()| and to start the rendering loop.
 %
@@ -670,6 +682,7 @@ of the OpenGL widget via~\lstinline|glw|.
  96     glw.swapBuffers();
  97
 \end{lstlisting}
+\caption{Start rendering loop}
 \end{figure}
 %%%}
 
@@ -700,8 +713,9 @@ render context back.
 106
 107     glw.makeCurrent();
 \end{lstlisting}
+\caption{Release GL context when not rendering}
 \end{figure}
-%
+
 %Der Thread gibt nach jedem Frame den Rendering-Kontext frei und legt sich
 %schlafen. Wenn er über die QWaitCondition wieder geweckt wird, wird der
 %Rendering-Kontext erneut für diesen Thread gesichert.
@@ -731,14 +745,15 @@ Finally, we unlock the render mutex before the \lstinline|run()| function exits.
 114   glw.unlockGLContext();
 115 }
 \end{lstlisting}
+\caption{Unlock GL context at the very end}
 \end{figure}
 % % %}
 %Am Ende muss der Rendering-Kontext wieder freigegeben werden.
-%
+
 The details of rendering a cube are encapsulated in the \lstinline|draw()|
 function.
 %
-Basically, for each of the cube's surfaces we loop over the four corners and in
+Basically, for each of the cube's surfaces we loop over the four corners in
 clockwise or counter-clockwise order and ask OpenGL to draw the vertexes one
 after another.
 %
@@ -801,14 +816,15 @@ loop over the surface's vertexes.
 190   }
 191 }
 \end{lstlisting}
+\caption{Assign names to surfaces to enable picking}
 \end{figure}
 %}
 %Zeile 181 ist der Schlüssel für das Picking: jeder Würfelfläche wird hier ein “Name” zugewiesen, über den diese identifiziert werden kann. Leider gibt es davon nur 64. Aber das ist ein anderes Thema.
-%
+
 Last but not least we come to the main topic, the implementation of the picking.
 %
 As before, the very first action is to lock the rendering context.
-
+%
 Once a surface has been clicked on, its ``name" can be found at the fourth
 position of the hit buffer.
 %
@@ -831,15 +847,6 @@ at that time.
 We are only interested in the name of the object, i.e. the number of the
 surface.
 
-For the picking we have to activate the corresponding rendering mode by
-calling \lstinline|glRenderMode(GL_SELECT)|.
-%
-After that follow the standard OpenGL commands to execute the picking and
-drawing the scene.
-
-At the end we have to release the rendering context again and return the name
-of the clicked surface.
-%
 %%%\ifthenelse {\boolean{UseOrig}}
 %%%{
 %%%\begin{lstlisting}
@@ -899,7 +906,8 @@ of the clicked surface.
 %%%{
 \begin{figure}[h]
 \begin{lstlisting}[basicstyle=\scriptsize]
-193 int ExampleRenderThread::faceAtPosition(const QPoint &pos)
+193 int ExampleRenderThread::faceAtPosition(
+                                   const QPoint &pos)
 194 {
 ...
 196   glw.lockGLContext();
@@ -911,6 +919,21 @@ of the clicked surface.
 203   glGetIntegerv(GL_VIEWPORT, viewport);
 204   glSelectBuffer(MaxSize, buffer);
 ...
+\end{lstlisting}
+\caption{Initialize hit buffer for picking}
+\end{figure}
+
+For the picking we have to activate the corresponding rendering mode by
+calling \lstinline|glRenderMode(GL_SELECT)|.
+%
+After that follow the standard OpenGL commands to execute the picking and
+drawing the scene.
+%
+At the end we have to release the rendering context again and return the name
+of the clicked surface.
+%
+\begin{figure}[h]
+\begin{lstlisting}[basicstyle=\scriptsize]
 206   glRenderMode(GL_SELECT);
 207
 208   glInitNames();
@@ -940,6 +963,7 @@ of the clicked surface.
 242   return buffer[3];
 243 }
 \end{lstlisting}
+\caption{Re-render for picking}
 \end{figure}
 %%%}
 % Hier nun die Implementation des GL-Picking. Damit diese Methode gefahrlos aus
@@ -951,7 +975,10 @@ of the clicked surface.
 
 \section{Results and Conclusion}
 
-\begin{figure*}[tbp]
+\renewcommand{\figurename}{Figure}
+\setcounter{figure}{0}
+
+\begin{figure*}[bp]
 \begin{center}
   \includegraphics[width=.95\linewidth  %, clip, trim = 50mm 74mm 100mm 36mm
   ]
@@ -981,7 +1008,7 @@ A screenshot of our sample program is given in figure~\ref{fig:screenshot}.
 
 This code has been licensed under the GNU Public License (GPL) and is available
 from \url{http://mih.voxindeserto.de/threadedcube.html}.
-
+\todo{I'd rather include it in the submission}
 
 
 
@@ -992,14 +1019,13 @@ from \url{http://mih.voxindeserto.de/threadedcube.html}.
 
 
 \bibitem{nehe32}
-Molofee, J., 1997-2012. {\itshape Picking, Alpha Blending, Alpha Testing, Sorting}. OpenGL Tutorial, Lesson {\bf 32}. Neon Helium Productions. http://nehe.gamedev.net/
-
+  Molofee, J., 1997-2012. {\itshape Picking, Alpha Blending, Alpha Testing, Sorting}. OpenGL Tutorial, Lesson {\bf 32}. Neon Helium Productions. \\\url{http://nehe.gamedev.net}
 
 \bibitem{glimpse3d}
 Kjern\r{a}sen, T., 2003. {\itshape Glimpsing the third dimension}. Qt Quarterly {\bf 6}. Trolltech.
+\url{http://doc.qt.digia.com/qq/qq06-glimpsing.html}
 
-\bibitem%[\protect\citeauthoryear{Blanchette and Summerfield}{2008}]
-{Blanchette2008}
+\bibitem{Blanchette2008}
 Blanchette, J. and Summerfield, M., 2008. {\itshape C++ GUI Programming with Qt
   4}.   Prentice Hall PTR.
 \end{thebibliography}
