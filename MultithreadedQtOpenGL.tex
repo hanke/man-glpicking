@@ -201,30 +201,47 @@ different threads.
 \section{Introduction}
 \label{sec:Introduction}
 
+\begin{TODO}
+AW: This introduction doesn't define what the problem is. The reader needs to
+know right away what the problem is. Only then can we offer the solution to
+them.
+\end{TODO}
+
 There are quite a few examples for OpenGL-based rendering with picking
 capabilities.
 %
-For instance lesson 32 of the NeHe tutorials \cite{nehe32}.
+For example, lesson 32 of the NeHe tutorials \cite{nehe32}.
+\begin{TODO}
+AW: Is it a good example? If so, what makes it good? Try: "provides a concise and well documented approach."
+\end{TODO}
 %
-How to move labor-intensive rendering into a separate thread such that the main
-window of an application does not freeze is discussed in ``Glimpsing the Third
-Dimension'' \cite{glimpse3d} and a worked out, non-OpenGL example is the
-Mandelbrot program from the collection of Qt demo programs.
+Moving labor-intensive rendering into a separate thread, such that the main
+window of an application does not freeze, is discussed in ``Glimpsing the Third
+Dimension'' \cite{glimpse3d}. Mandelbroti is a fully functional, non-OpenGL
+example and is available in the collection of Qt demo programs.
 
-When it comes to GL-picking and Qt, finding a template program is not so easy
-anymore.
+When it comes combining GL-picking and Qt, finding a template program is not
+quite as easy.
 %
 Nevertheless, there is at least one example~\cite{Blanchette2008}.
+\begin{TODO}
+AW: I don't see how the previous two sentences are relevant. Are you citing
+this only to show it's difficult to find? Or is there a real reason for
+citing it?
+\end{TODO}
 %
 But multi-threaded OpenGL rendering with picking capabilities seems to be gap
-which has not been filled, yet.
+which has not been filled — yet.
 
-Given the plethora of Qt and OpenGL examples it should be a piece of cake to
+Given the plethora of Qt and OpenGL examples, it should be a piece of cake to
 realize this.
 %
-But, as always, easy things are hard to find and therefore we present our
-solution so that others do not have to bother about doing it themselves.
-
+But, as always, easy things are hard to find, and therefore, we present our
+solution so that others may learn from and build upon it.
+\begin{TODO}
+AW: "Easy things are hard to find?" Do you mean, clear, concise examples with
+high quality documentation are hard to find?
+\end{TODO}
 
 
 
