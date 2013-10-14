@@ -97,7 +97,8 @@ morekeywords={*,__global__, __device__, __shared__}            % if you want to 
 %\newcommand{\mydiff}[2]{{}{\color{red}#2}}
 %\newcommand{\mydiffX}[2]{{}{#2}}
 %
-\newcommand{\todo}[1]{\marginpar{\color{red}#1}}
+\newcommand{\todo}[1]{ {\color{red}#1}}
+\newcommand{\comment}[1]{ {\color{blue}#1}}
 %
 \def\mytitle{Multi-threaded OpenGL with Picking Capabilities the Qt-Way}
 %
@@ -201,47 +202,58 @@ different threads.
 \section{Introduction}
 \label{sec:Introduction}
 
-\begin{TODO}
+\todo{
 AW: This introduction doesn't define what the problem is. The reader needs to
 know right away what the problem is. Only then can we offer the solution to
 them.
-\end{TODO}
+}
+\comment{SCK: Actually, it does. See the``tackle'' comment below. Nevertheless, the description of the problem is kind of indirect. This clearly can be improved. }
 
 There are quite a few examples for OpenGL-based rendering with picking
 capabilities.
 %
 For example, lesson 32 of the NeHe tutorials \cite{nehe32}.
-\begin{TODO}
+\todo{ 
 AW: Is it a good example? If so, what makes it good? Try: "provides a concise and well documented approach."
-\end{TODO}
+}
+\comment{SCK: Lesson 32 is neither a good are a bad example. I suppose it is one of better known examples for OpenGL's picking capabilities. Since it is neither multi-threaded nor is QT employed to implement it, Lesson 32 misses two of our three goals and hence just can serve for illustrating ``picking'' in action. That's it. }
 %
 Moving labor-intensive rendering into a separate thread, such that the main
 window of an application does not freeze, is discussed in ``Glimpsing the Third
-Dimension'' \cite{glimpse3d}. Mandelbroti is a fully functional, non-OpenGL
+Dimension'' \cite{glimpse3d}. Mandelbrot is a fully functional, non-OpenGL
 example and is available in the collection of Qt demo programs.
 
-When it comes combining GL-picking and Qt, finding a template program is not
+When it comes to combining GL-picking and Qt, finding a template program is not
 quite as easy.
 %
 Nevertheless, there is at least one example~\cite{Blanchette2008}.
-\begin{TODO}
+\todo{ 
 AW: I don't see how the previous two sentences are relevant. Are you citing
 this only to show it's difficult to find? Or is there a real reason for
 citing it?
-\end{TODO}
+}
+\comment{SCK: The two sentences are relevant. They exactly state the problem: There are programs exemplifying OpenGL's picking capabilities and there are plenty of QT programs. Where do we get an example of OpenGL picking implemented with QT's OpenGL wrapper/convenience classes? Answer: from Blanchette's book, i.e. Ref. [3]. 
+
+The solution proposed by Michael on his webpage simply boils down to take the picking+QT part from Blanchette and Summerfield and to add the multi-threaded rendering from  ``Glimpsing the Third
+Dimension''.  }
 %
-But multi-threaded OpenGL rendering with picking capabilities seems to be gap
-which has not been filled — yet.
+\comment{SCK: This is the problem we tackle:}
+{\sf But multi-threaded OpenGL rendering with picking capabilities seems to be gap
+which has not been filled — yet.}
 
 Given the plethora of Qt and OpenGL examples, it should be a piece of cake to
 realize this.
 %
 But, as always, easy things are hard to find, and therefore, we present our
 solution so that others may learn from and build upon it.
-\begin{TODO}
+\todo{ 
 AW: "Easy things are hard to find?" Do you mean, clear, concise examples with
 high quality documentation are hard to find?
-\end{TODO}
+}
+\comment{SCK:  ``concise examples with
+high quality documentation'' are always a scarce resource. One of the few projects dealing with this point seriously which I know of is the finite-element library deal.II (www.dealii.org). Would be fun to cite them in this context.
+
+``Easy thing'' just means: ``combine the two example programs and do not re-invent the wheel.'' At least to my knowledge Michael's example is the only one on the web dealing with the problem ``QT+multi-threading+OpenGL-picking''. }
 
 
 
@@ -276,10 +288,10 @@ the main function.
 %
 Multi-threading inherently depends on the operating system (OS).
 %
-While there are no special headers to be included in case of {\sf Windows} or
-{\sf Max OS X}, {\sf Linux} requires the \lstinline|XInitThreads()| function to
+While there are no special headers to be included in case of\todo{ Windows} or
+{\sf Mac OS X},\todo{ Linux} requires the \lstinline|XInitThreads()| function to
 be called at the very beginning, even before the \lstinline|main()| function, at
-the start-up of the program in order to make calls to the  {\sf XLib} library
+the start-up of the program in order to make calls to the \todo{ XLib} library
 thread-safe.
 %
 This is needed as we want to issue the OpenGL rendering commands from a thread
@@ -288,7 +300,7 @@ other than the main GUI thread.
 The need for the \lstinline|XInitThreads()| function introduces differences in the
 list of headers we have to include.
 %
-In particular, in case of Linux, we need the main header for the {\sf XLib}
+In particular, in case of Linux, we need the main header for the\todo{ XLib}
 library which is encapsulated by a preprocessor directive using a built-in Qt
 macro (see listing \ref{lst:initthreads}).
 %
@@ -398,7 +410,7 @@ GL-picking.
 %
 Note that we call the method from the main thread.
 %
-%\marginpar{where are the security measures for faceatposition?}
+% {where are the security measures for faceatposition?}
 Therefore, all calls to \lstinline|faceAtPosition()| have to be guarded by
 mutexes to maintain thread-safety.
 %
